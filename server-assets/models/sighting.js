@@ -1,73 +1,77 @@
-let DataStore = require('nedb')
-    , db = new DataStore({
-        filename: './data/sightings.db', 
-        autoload: true
-    })
-let Clown = require('./clown')
+let DataStore = require('nedb');
+let db = new DataStore({
+    filename: './data/sightings.db',
+    autoload: true
+})
+let Clown = require('./clown');
 
-function Sighting(sighting){
+let moment = require('moment')
+let d = new Date();
+
+function Sighting(sighting) {
     this.clownId = sighting.clownId;
     this.location = sighting.location;
-    // this.spotterId = spotterId;
-    this.time = Date.now();
-    // this.date = date;
-    // this.dead = false;
+    this.spotter = sighting.spotter;
+    this.date = sighting.date || moment(d).format("MMM Do YY");
+    this.time = sighting.time || moment(d).format("h:mm:ss a");
+    this.old = false;
 }
 
-// function findSighting(id,cb){
-//     db.findOne({_id: id},cb);
-//     };
+function findClownSightings(clownId, cb){
+    db.find({clownId: clownId}, cb)
+}
 
-function findClownSightings(clownId,cb){
-    db.find({clownId: clownId}, cb);
-    };  
+function findSighting(id, cb) {
+    db.findOne({ _id: id }, cb)
+}
 
-function addSighting(sighting, cb){
-    Clown.getClown(sighting.clownId, function(err, clown){
-        if(!clown || err){
-            return cb({error: err, message: 'Sorry that didnt work'})
+function addSighting(sighting, cb) {
+    Clown.getClown(sighting.clownId, function (err, clown) {
+        if (!clown || err) {
+            return cb({ error: err, message: 'Sorry that did not work.' })
         }
-    let newSighting = new Sighting(sighting)
-
-    db.insert(newSighting, function(err, savedSighting){
-        if(err){return cb(err)}
-        clown.sightings = clown.sights || []
-        clown.sightings.push(savedSighting._id)
-        Clown.editClown(clown._id, clown, function(err){
-            if(err){ cb(err)}
-        cb (null,{message:'You are lucky to be alive'})
+        let newSighting = new Sighting(sighting);
+        db.insert(newSighting, function (err, savedSighting) {
+            if (err) {
+                return cb(err)
+            }
+            clown.sightings = clown.sightings || []
+            clown.sightings.push(savedSighting._id)
+            Clown.editClown(clown._id, clown, function (err) {
+                if (err) {
+                    cb(err)
+                }
+                cb(null, { message: 'You are lucky to be alive with having seen ' + clown.name + ' the clown!' })
+            })
         })
     })
-    })
 }
-function getSightings(cb){
+
+function getSightings(cb) {
     db.find({}, cb)
 }
 
-function killSighting(id,cb){
-    db.update({_id: id},{$set: {dead: true}},{},cb)
-    
-    };
+function oldSighting(id, cb) {
+    db.update({ _id: id }, { $set: { old: true } }, {}, cb)
+}
 
-function editSighting(id, newSighting, cb){
-    db.update(
-    {_id: id},
-    {$set:{
-        clownId: newSighting.clownId,
-        location: newSighting.location,
-        spotterId: newSighting.spotterId,
-        time: newSighting.time,
-        date: newSighting.date
+function editSighting(id, newSighting, cb) {
+    db.update({ _id: id }, {
+        $set: {
+            clownId: newSighting.clownId,
+            location: newSighting.location,
+            spotter: newSighting.spotter,
+            date: newSighting.date,
+            time: newSighting.time
+        }
+    }, {}, cb)
+}
 
-    }},{}, cb)
-    
-};
 module.exports = {
     addSighting,
     getSightings,
-    killSighting,
     editSighting,
-    findClownSightings,
-    getSighting:findSighting
-
+    oldSighting,
+    getSighting: findSighting,
+    findClownSightings
 }

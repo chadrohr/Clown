@@ -2,3 +2,5 @@
 {"clownId":"random","location":"The Park","spotterId":"random2","time":"1300","date":"today","dead":false,"_id":"ZVxmrUoOeBLkKQ5w"}
 {"clownId":"random","location":"The Park","spotterId":"random2","time":"1300","date":"today","dead":false,"_id":"dv8UAdpez3Vmp7cu"}
 {"clownId":"random","location":"The Park","spotterId":"random2","time":"1300","date":"today","dead":false,"_id":"oBzqsFwA30EqCbgv"}
+{"clownId":"random","location":"The Park","spotterId":"random2","time":"1400","date":"yesterday","dead":true,"_id":"HW4sx8q0LWUwmdBQ"}
+{"clownId":"random","location":"The Park","spotterId":"random2","time":"1300","date":"today","dead":false,"_id":"ZVxmrUoOeBLkKQ5w","old":true}
